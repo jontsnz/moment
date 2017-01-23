@@ -41,7 +41,7 @@ addRegexToken('YYYYYY', match1to6, match6);
 
 addParseToken(['YYYYY', 'YYYYYY'], YEAR);
 addParseToken('YYYY', function (input, array) {
-    array[YEAR] = input.length === 2 ? hooks.parseTwoDigitYear(input) : toInt(input);
+    array[YEAR] = hooks.parseFourDigitYear(input);
 });
 addParseToken('YY', function (input, array) {
     array[YEAR] = hooks.parseTwoDigitYear(input);
@@ -64,6 +64,23 @@ function isLeapYear(year) {
 
 hooks.parseTwoDigitYear = function (input) {
     return toInt(input) + (toInt(input) > 68 ? 1900 : 2000);
+};
+
+hooks.parseFourDigitYear = function (input) {
+    // handle 1-3 digits entered into 4 digit year field defaulting to sensible century
+    var year = toInt(input);
+    if (input != null) {
+        if (input.length == 1) {
+            return year + 2000;
+        } 
+        if (input.length == 2) {
+            return year + (year > 68 ? 1900 : 2000);
+        }
+        if (input.length == 3) {
+            return year + (year > 680 ? 1000 : 2000);
+        }
+    }
+    return year;
 };
 
 // MOMENTS
